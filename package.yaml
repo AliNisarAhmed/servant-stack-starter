@@ -29,6 +29,7 @@ library:
     - servant-server
     - wai
     - warp
+    - text
 
 executables:
   request-headers-exe:
