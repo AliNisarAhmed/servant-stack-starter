@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 747df4704f258c26351e4fa4a203690f6fedff73fb76490230520d5c75a7fc60
+-- hash: a6ebeb2ed3534700b4447e2f27a001f63ae4f1715f3d2da8efefe11a36c1bf75
 
 name:           request-header-parser-haskell
 version:        0.1.0.0
@@ -25,6 +25,7 @@ source-repository head
 library
   exposed-modules:
       Lib
+      Model
   other-modules:
       Paths_request_header_parser_haskell
   hs-source-dirs:
@@ -32,9 +33,15 @@ library
   build-depends:
       aeson
     , base >=4.7 && <5
+    , mtl
+    , persistent
+    , persistent-template
     , servant-server
     , text
+    , time
+    , transformers
     , wai
+    , wai-extra
     , warp
   default-language: Haskell2010
 

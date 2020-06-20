@@ -19,15 +19,9 @@ import           Network.Wai
 import           Network.Wai.Handler.Warp
 import           Servant
 import qualified Data.Text as T
-
-data User = User
-  { userId        :: Int
-  , userFirstName :: String
-  , userLastName  :: String
-  } deriving (Eq, Show)
-
-$(deriveJSON defaultOptions ''User)
-
+import Model
+import Data.Time (UTCTime, getCurrentTime)
+import Control.Monad.IO.Class (liftIO)
 
 port = 8080
 
@@ -43,29 +37,16 @@ api = Proxy
 
 ---
 
-data UserInfo = UserInfo
-  { ipaddress :: T.Text
-  , language :: T.Text
-  , software :: T.Text
-  } deriving (Generic, Eq, Show, ToJSON)
-
 
 type API =
-  "api" :> "whoami"
-    :> Header "X-Forwarded-For" T.Text
-    :> Header "User-Agent" T.Text
-    :> Header "Accept-Language" T.Text
-    :> Get '[JSON] UserInfo
+  "api" :> "whoami" :> Get '[JSON] Question
 
 server :: Server API
 server = whoami
 
-whoami :: Maybe T.Text -> Maybe T.Text -> Maybe T.Text -> Handler UserInfo
-whoami ip ua lang = do
-  let ip' = convert ip
-      ua' = convert ua
-      lang' = convert lang
-  return $ UserInfo ip' ua' lang'
-    where
-      convert (Just v)  = v
-      convert Nothing   = "unknown"
+whoami :: Handler Question
+whoami = do
+  now <- liftIO getCurrentTime
+  return $ q now
+
+q time = Question "Title" "Content" time 2
