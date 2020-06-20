@@ -1,52 +1,70 @@
 {-# LANGUAGE DataKinds       #-}
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeOperators   #-}
-{-# LANGUAGE DeriveAnyClass  #-}
-{-# LANGUAGE DeriveGeneric   #-}
 {-# LANGUAGE OverloadedStrings   #-}
 
 
-module Lib
-  ( startApp
-  , app
-  )
-where
+module Lib where
 
-import GHC.Generics
+import           GHC.Generics
 import           Data.Aeson
 import           Data.Aeson.TH
 import           Network.Wai
 import           Network.Wai.Handler.Warp
 import           Servant
 import qualified Data.Text as T
-import Model
-import Data.Time (UTCTime, getCurrentTime)
-import Control.Monad.IO.Class (liftIO)
+import           Model
+import           Data.Time (UTCTime, getCurrentTime)
+import           Control.Monad.IO.Class (liftIO)
+import           Config
+import           Network.Wai.Middleware.Cors
+import           Database (runDb)
+import           Database.Persist
+import           Database.Persist.Sql (runMigration, ConnectionPool, runSqlPool)
+import           Control.Monad.Reader (runReaderT)
 
-port = 8080
+import Network.Wai.Middleware.Servant.Options
 
-startApp :: IO ()
-startApp =
-  putStrLn ("server running on port: " ++ show port) >> run port app
-
-app :: Application
-app = serve api server
+app :: Config -> Application
+app cfg =
+  cors (const $ Just policy)
+  $ provideOptions api
+  $ serve api (appToServer cfg)
+  where
+    policy = CorsResourcePolicy {
+      corsOrigins        = Nothing
+    , corsMethods        = ["OPTIONS", "GET", "PUT", "POST", "DELETE"]
+    , corsRequestHeaders = ["Authorization", "Content-Type"]
+    , corsExposedHeaders = Nothing
+    , corsMaxAge         = Nothing
+    , corsVaryOrigin     = False
+    , corsRequireOrigin  = False
+    , corsIgnoreFailures = False
+    }
 
 api :: Proxy API
 api = Proxy
+
+
+convertApp :: Config -> App a -> Handler a
+convertApp cfg appt = runReaderT (runApp appt) cfg
+
+-- | This functions tells Servant how to run the 'App' monad with our
+-- 'server' function.
+appToServer :: Config -> Server API
+appToServer cfg = hoistServer api (convertApp cfg) server
+
 
 ---
 
 
 type API =
-  "api" :> "whoami" :> Get '[JSON] Question
+  "api" :> "whoami" :> Get '[JSON] [Entity Question]
 
-server :: Server API
+server :: ServerT API App
 server = whoami
 
-whoami :: Handler Question
-whoami = do
-  now <- liftIO getCurrentTime
-  return $ q now
+whoami :: App [Entity Question]
+whoami = runDb $ selectList [] []
 
-q time = Question "Title" "Content" time 2
+migrateDb :: ConnectionPool -> IO ()
+migrateDb pool = runSqlPool (runMigration migrateAll) pool

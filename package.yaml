@@ -21,24 +21,30 @@ description:         Please see the README on GitHub at <https://github.com/gith
 
 dependencies:
 - base >= 4.7 && < 5
+- servant-options
+- aeson
+- servant-server
+- servant
+- wai
+- wai-extra
+- wai-cors
+- warp
+- transformers
+- mtl
+- text
+- persistent
+- persistent-template
+- persistent-postgresql
+- time
+- monad-logger
+- bytestring
 
 library:
   source-dirs: src
-  dependencies:
-    - aeson
-    - servant-server
-    - wai
-    - wai-extra
-    - transformers
-    - mtl
-    - warp
-    - text
-    - persistent
-    - persistent-template
-    - time
+
 
 executables:
-  request-headers-exe:
+  server-exe:
     main:                Main.hs
     source-dirs:         app
     ghc-options:

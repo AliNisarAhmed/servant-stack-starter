@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: a6ebeb2ed3534700b4447e2f27a001f63ae4f1715f3d2da8efefe11a36c1bf75
+-- hash: 4a755728c09f2fef66d6948c884fd942e35651483cca961e553af09394ec927d
 
 name:           request-header-parser-haskell
 version:        0.1.0.0
@@ -24,6 +24,8 @@ source-repository head
 
 library
   exposed-modules:
+      Config
+      Database
       Lib
       Model
   other-modules:
@@ -33,19 +35,25 @@ library
   build-depends:
       aeson
     , base >=4.7 && <5
+    , bytestring
+    , monad-logger
     , mtl
     , persistent
+    , persistent-postgresql
     , persistent-template
+    , servant
+    , servant-options
     , servant-server
     , text
     , time
     , transformers
     , wai
+    , wai-cors
     , wai-extra
     , warp
   default-language: Haskell2010
 
-executable request-headers-exe
+executable server-exe
   main-is: Main.hs
   other-modules:
       Paths_request_header_parser_haskell
@@ -53,8 +61,25 @@ executable request-headers-exe
       app
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      aeson
+    , base >=4.7 && <5
+    , bytestring
+    , monad-logger
+    , mtl
+    , persistent
+    , persistent-postgresql
+    , persistent-template
     , request-header-parser-haskell
+    , servant
+    , servant-options
+    , servant-server
+    , text
+    , time
+    , transformers
+    , wai
+    , wai-cors
+    , wai-extra
+    , warp
   default-language: Haskell2010
 
 test-suite request-headers-test
@@ -68,7 +93,20 @@ test-suite request-headers-test
   build-depends:
       aeson
     , base >=4.7 && <5
+    , bytestring
+    , monad-logger
+    , mtl
+    , persistent
+    , persistent-postgresql
+    , persistent-template
+    , servant
+    , servant-options
     , servant-server
+    , text
+    , time
+    , transformers
     , wai
+    , wai-cors
+    , wai-extra
     , warp
   default-language: Haskell2010
