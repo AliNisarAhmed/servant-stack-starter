@@ -2,7 +2,12 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 
-module Database where
+module Database
+  ( connectDb
+  , runDb
+  , migrateDb
+  )
+where
 
 import           Database.Persist
 import           Database.Persist.Sql           ( SqlPersistT
@@ -10,6 +15,7 @@ import           Database.Persist.Sql           ( SqlPersistT
                                                 , runSqlPool
                                                 , ConnectionPool
                                                 )
+
 import           Database.Persist.Postgresql    ( ConnectionString
                                                 , createPostgresqlPool
                                                 )
@@ -23,6 +29,7 @@ import           Control.Monad.IO.Class         ( MonadIO
 import           Control.Monad.Logger           ( runStderrLoggingT )
 
 import           Config
+import           Model
 
 connectDb :: ConnectionString -> IO ConnectionPool
 connectDb connectionString =
@@ -32,3 +39,6 @@ runDb :: (MonadReader Config m, MonadIO m) => SqlPersistT IO b -> m b
 runDb query = do
   pool <- asks configPool
   liftIO $ runSqlPool query pool
+
+migrateDb :: ConnectionPool -> IO ()
+migrateDb pool = runSqlPool (runMigration migrateAll) pool

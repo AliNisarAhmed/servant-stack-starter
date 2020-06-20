@@ -5,7 +5,9 @@ module Main where
 import           Lib
 import           Network.Wai.Handler.Warp
 import           Config                         ( Config(..) )
-import           Database                       ( connectDb )
+import           Database                       ( connectDb
+                                                , migrateDb
+                                                )
 
 main :: IO ()
 main = do

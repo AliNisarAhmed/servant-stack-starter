@@ -19,7 +19,6 @@ import           Config
 import           Network.Wai.Middleware.Cors
 import           Database (runDb)
 import           Database.Persist
-import           Database.Persist.Sql (runMigration, ConnectionPool, runSqlPool)
 import           Control.Monad.Reader (runReaderT)
 
 import Network.Wai.Middleware.Servant.Options
